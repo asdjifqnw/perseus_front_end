@@ -1,17 +1,10 @@
-#打包和发布一起执行
-image: node:8.10.0
-
-build:
-  cache:
-    paths:
-    - node_modules/
+build site:
+  image: node:8.10
+  stage: build
   script:
-  - npm install
-  - npm run build
-  - mkdir public
-  - mv dist/* public
+    - npm install --progress=false
+    - npm run build
   artifacts:
+    expire_in: 1 week
     paths:
-    - public
-  only:
-  - master
+      - dist
