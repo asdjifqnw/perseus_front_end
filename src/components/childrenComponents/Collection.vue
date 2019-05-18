@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="height:37rem;">
     <el-card class="box-card" :body-style="bodyStyle" shadow="none">
       <p>
         <span style="font-size:1.5rem; padding-left: 10px; display:inline-block;">我的收藏</span>

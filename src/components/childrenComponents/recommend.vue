@@ -81,7 +81,7 @@
         </div>
       </el-card>
     </div>
-    <!-- 查看博客 -->
+    <!-- 查看个人信息 -->
     <el-dialog title="用户个人信息" :visible="userProfileVisible" width="30%" :show-close="false">
       <div v-loading="loading">
         <el-row type="flex" class="row-bg">
@@ -96,6 +96,7 @@
         <el-button type="mini" @click="attention(userProfile.userAuthId)" v-if="!isAttention">关注</el-button>
         <el-button type="mini" @click="noAttention(userProfile.userAuthId)" v-else>已关注</el-button>
         <el-button type="mini" @click="privateMessage(userProfile.userAuthId)">私信</el-button>
+        <el-button type="mini" @click="userHomePage(userProfile.userAuthId)">查看个人主页</el-button>
       </div>
     </el-dialog>
     <!-- 查看博客 -->
@@ -122,12 +123,21 @@
             <span
               class="pointer"
               style="font-size: 0.9rem; font-weight: bold;"
-            >创建时间:{{dialogBlog.createDate}}</span>
+              v-if="tags.legth == 0"
+            >文章标签:获取中</span>
+            <span class="pointer" style="font-size: 0.9rem; font-weight: bold;" v-else>文章标签:&nbsp;&nbsp;
+              <el-button plain size="small" v-for="(i,item) in tags" :key="item">{{i}}</el-button>
+            </span>
             <br>
             <span
               class="pointer"
               style="font-size: 0.9rem; font-weight: bold;"
-            >最后修改时间:{{dialogBlog.modifyDate}}</span>
+            >创建时间:&nbsp;&nbsp;{{dialogBlog.createDate.replace("T"," &nbsp; ")}}</span>
+            <br>
+            <span
+              class="pointer"
+              style="font-size: 0.9rem; font-weight: bold;"
+            >最后修改时间:&nbsp;&nbsp;{{dialogBlog.modifyDate.replace("T"," &nbsp; ")}}</span>
             <br>
             <br>
             <br>
@@ -215,7 +225,7 @@
   </div>
 </template>
 <script>
-import test from "../../test.json";
+import test1 from "../../test.json";
 export default {
   data: function() {
     return {
@@ -225,7 +235,7 @@ export default {
       bodyStyle: { padding: "5px 20px" },
       bodyStyle0: { padding: "0px" },
       // 测试文章
-      testArticle: test,
+      testArticle: test1,
       test: this.$route.query.val,
       userProfile: {},
       userProfileVisible: false,
@@ -259,7 +269,8 @@ export default {
         columns: ["content", "detail"],
         rows: []
       },
-      isVoted: false
+      isVoted: false,
+      tags: []
     };
   },
   computed: {
@@ -267,6 +278,9 @@ export default {
       return this.userProfile.nickName == ""
         ? "该用户还没有设置昵称"
         : this.userProfile.nickName;
+    },
+    blogTags() {
+      return this.tags.length == 0 ? "获取中" : this.tags;
     }
   },
   created: function() {
@@ -277,6 +291,7 @@ export default {
         .get("/forward/blog/blog")
         .then(res => {
           this.testArticle = res.data._embedded;
+          console.log(this.testArticle)
           for (i = 0; this.testArticle.blogs[i] != null; i++) {
             var temp = this.testArticle.blogs[i];
             temp.newParam = "isOpen";
@@ -325,17 +340,16 @@ export default {
           })
           .then(res => {
             console.log(res.data);
-            for(let j in this.voteOptionInfo){
-              console.log(this.voteOptionInfo[j])
-              if(this.checkedOption[i] == this.voteOptionInfo[j].id){
-                console.log("before--"+this.voteOptionInfo[j].detail)
-                this.voteOptionInfo[j].detail++
-                console.log("after--"+this.voteOptionInfo[j].detail)
+            for (let j in this.voteOptionInfo) {
+              console.log(this.voteOptionInfo[j]);
+              if (this.checkedOption[i] == this.voteOptionInfo[j].id) {
+                console.log("before--" + this.voteOptionInfo[j].detail);
+                this.voteOptionInfo[j].detail++;
+                console.log("after--" + this.voteOptionInfo[j].detail);
               }
-              this.$forceUpdate()
+              this.$forceUpdate();
             }
-            this.isVoted = true
-
+            this.isVoted = true;
           })
           .catch(err => {
             this.$message({ type: "error", message: "已投票或网络错误" });
@@ -343,7 +357,8 @@ export default {
       }
     },
     checkVoteInfo() {
-      //检查是否有投票数据
+      this.$message({type:"success",message:"获取投票信息中,请耐心等待"})
+    //检查是否有投票数据
       this.$axios
         .get("/forward/vote/vote/search/findByBlogId", {
           params: { blogId: this.dialogBlog.id }
@@ -477,9 +492,37 @@ export default {
       this.bolgVisible = true;
       this.history(blog.id);
       this.dialogBlog = blog;
+      this.tags.length = 0;
+      this.$axios
+        .get("/forward/blog/blogTag/search/findByBlogId", {
+          params: { blogId: blog.id }
+        })
+        .then(res => {
+          let data = res.data._embedded.blogTags;
+          let count = 0;
+          for (let i in data) {
+            this.$axios
+              .get("/forward/blog/blogTag/" + data[i].id + "/tag")
+              .then(res => {
+                if (count <= 6) {
+                  this.tags.push(res.data.tagTitle);
+                  count++;
+                }
+              })
+              .catch(err => {
+                this.$message({ type: "error", message: "获取信息失败" });
+              });
+          }
+        })
+        .catch(err => {
+          this.$message({ type: "error", message: "获取标签信息失败" });
+        });
     },
     privateMessage(id) {
       this.$router.push({ path: "/privateLetter", query: { id: id } });
+    },
+    userHomePage(id) {
+      this.$router.push({ name: "HomePage", query: { id: id } });
     },
     getUserProfile(id) {
       let that = this;
@@ -505,7 +548,9 @@ export default {
               that.loading = false;
             })
             .catch(err => {
-              console.log(err);
+              this.$message({ type: "error", message: "网络错误,请重试" });
+              this.userProfileVisible = false;
+              this.loading = false;
             });
         })
         .catch(err => {

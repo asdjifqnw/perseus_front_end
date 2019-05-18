@@ -1,7 +1,7 @@
 <template>
   <div style="position:fixed; width:100%;z-index:999;">
     <el-row type="flex" class="row-bg" justify="center">
-      <el-col :md="4" :xs="4" :sm="4" :xl="2" :lg="3">
+      <el-col :md="4" :xs="4" :sm="4" :xl="2" :lg="2">
         <img src="../assets/logo.png" style="height:50px; padding-top:6.5px;">
       </el-col>
       <el-col :md="14" :xs="6" :sm="9" :xl="5" :lg="6">
@@ -94,7 +94,7 @@
             </el-row>
             <span slot="footer" class="dialog-footer">
               <el-button type="primary" @click="login(userInfo)" :disabled="loading">确 定</el-button>
-              <el-button @click="">取 消</el-button>
+              <el-button @click="loginDialogVisible = false ">取 消</el-button>
             </span>
           </el-dialog>
         </div>
@@ -210,7 +210,7 @@ export default {
                   .then(res => {
                     this.loading = false;
                     this.$store.commit("setUserId", res.data.id);
-                    // window.location.reload();
+                    window.location.reload();
                   })
                   .catch(err => {
                     this.loading = false;

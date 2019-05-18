@@ -5,7 +5,11 @@
         <el-card class="box-card" :body-style="bodyStyle0" style="width:98.3%">
           <el-col :span="24">
             <!-- 子路由 -->
-            <router-view :key="activeDate"/>
+            <div v-if="this.$store.state.token==''">
+              <span class="login_font">登录发现更多精彩内容</span>
+              <img src="../assets/index.png" style="width:80%; padding:2.5rem 5rem 2rem 5.5rem; ">
+            </div>
+            <router-view v-else :key="activeDate"/>
           </el-col>
         </el-card>
       </el-col>
@@ -66,13 +70,13 @@
             </span>
           </el-card>
           <div style="display:inline-block;margin-top:0.65rem;color: #77839c">
-            &nbsp;刘看山·知乎协议知乎隐私保护指引
-            <br>&nbsp;应用工作申请·开通知乎机构号
+            &nbsp;刘博开·在线博客系统
+            <br>&nbsp;应用工作申请·开通博客机构号
             <br>&nbsp;侵权举报网上有害信息举报专区
-            <br>&nbsp;违法和不良信息举报：010-82716601
+            <br>&nbsp;违法和不良信息举报：010-82333333
             <br>&nbsp;电信与服务业务经营许可证
             <br>&nbsp;网络文化经营许可证
-            <br>&nbsp;联系我们 © 2019 知乎
+            <br>&nbsp;联系我们 © 2019 
           </div>
         </div>
       </el-col>
@@ -126,6 +130,15 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.login_font {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  color: #0492bd;
+  font-size: 2rem;
+  text-align: center;
+  padding-top: 2.5rem;
+}
 .iconfont path {
   fill: rgb(255, 255, 255);
 }

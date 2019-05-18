@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="height:37rem;">
     <el-card class="box-card" :body-style="bodyStyle" shadow="none">
       <p>
         <span style="font-size:1.5rem; padding-left: 10px; display:inline-block;">我发布的文章</span>
@@ -11,14 +11,14 @@
           align="center"
           prop="createDate"
           label="创建时间"
-          width="180"
+          width="150"
           :formatter="dateFormatter1"
         ></el-table-column>
         <el-table-column
           align="center"
           prop="modifyDate"
           label="最后修改时间"
-          width="180"
+          width="150"
           :formatter="dateFormatter2"
         ></el-table-column>
         <el-table-column align="center" label="操作">

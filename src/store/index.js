@@ -7,15 +7,15 @@ const module = {
                 newArticle: false,
                 token: "",
                 userInfo: {
-                        admin:"",
+                        admin: "",
                         createDate: "",
-                        enabled:"",
-                        id:"",
-                        locked:"",
+                        enabled: "",
+                        id: "",
+                        locked: "",
                         modifyDate: "",
                         username: ""
                 },
-                userId:""
+                userId: ""
         },
         getters: {},
         mutations: {
@@ -24,19 +24,19 @@ const module = {
                 },
                 logoutSuccess(state) {
                         state.token = ""
-                        for(let i in state.userInfo){
-                                state.userInfo[i]=""
+                        for (let i in state.userInfo) {
+                                state.userInfo[i] = ""
                         }
                 },
-                setUserInfo(state,userInfo){
+                setUserInfo(state, userInfo) {
                         state.userInfo = userInfo
                 },
-                setUserId(state,userId){
+                setUserId(state, userId) {
                         state.userId = userId
                 }
-               
+
         },
-        plugins: [createPersistedState()]
+        plugins: [createPersistedState({ storage: window.sessionStorage })]
 }
 const store = new Vuex.Store(module)
 export default store

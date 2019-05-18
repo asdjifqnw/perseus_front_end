@@ -23,9 +23,10 @@
             <span class="attition">粉丝：&nbsp;{{followeds}}</span>
             <span class="attition">关注：&nbsp;{{followers}}</span>
           </el-card>
-          <br>&nbsp;
-          <el-button plain type="medium" :disabled="isSelf">关注</el-button>
-          <el-button plain type="medium" :disabled="isSelf">私信</el-button>
+          <br>
+          <el-button plain type="small" :disabled="isSelf" v-if="isAttention" @click="noAttention(followererId)">已关注</el-button>
+          <el-button plain type="small" :disabled="isSelf" v-else @click="attention(followedId)">关注</el-button>
+          <el-button plain type="small" :disabled="isSelf" @click="privateMessage(userId)">私信</el-button>
         </el-col>
       </el-row>
     </el-card>
@@ -190,19 +191,19 @@ export default {
       activeIndex: "1",
       bodyStyle: { padding: "5px 20px" },
       //主页用户信息
+      userId: "",
       authorProfile: {
         nickName: "用户昵称",
         description: "用户个性签名",
         userAuthId: "获取中"
       },
-      avatarURL:
-        "https://ui-avatars.com/api/?size=128&name=" +
-        this.$store.state.userInfo.id,
+      avatarURL: "",
       testArticle: {},
       userProfile: {},
       userProfileVisible: false,
       isAttention: false,
       followererId: "",
+      followedId:"",
       loadling: false,
       loading: false,
       bolgVisible: false,
@@ -238,9 +239,13 @@ export default {
   created() {
     let i;
     let id = "";
+    console.log(this.$route.query.id);
     this.$route.query.id == null
       ? (id = this.$store.state.userInfo.id)
       : (id = this.$route.query.id);
+    this.avatarURL = "https://ui-avatars.com/api/?size=128&name=" + id;
+    this.followedId = id
+    this.userId = id;
     if (this.$route.query.id == null) this.isSelf = true;
     this.headLoading = true;
     this.$axios
@@ -268,6 +273,21 @@ export default {
         this.followers = res.data;
         this.headLoading = false;
       });
+    if (this.isSelf == false) {
+      this.$axios.get(
+        "/forward/userAttention/userAttention/search/findByFollowedIdAndFollowerId",
+        { params: { followedId: id, followerId: this.$store.state.userInfo.id } }
+      ).then(res=>{
+        this.isAttention = true
+        this.followererId = res.data.id
+      }).catch(err=>{
+        if(err.response.status == 404){
+          this.isAttention = false
+        }else 
+        this.$message({type:"error",message:"获取关注信息失败,请刷新重试"})
+      })
+    }
+
     this.$axios
       .get("/forward/blog/blog/search/findByPublisherId", {
         params: { publisherId: id }
@@ -292,6 +312,9 @@ export default {
       });
   },
   methods: {
+    newAttition(){
+
+    },
     ListBlog() {},
 
     handleCommand() {},
