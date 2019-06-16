@@ -115,7 +115,7 @@
       >关闭</el-button>
       <div v-loading="loading">
         <el-row type="flex" class="row-bg">
-          <el-col>
+          <el-col :lg="8" :offset="8">
             <span class="pointer" style="font-size: 1.3rem; font-weight: bold;">{{dialogBlog.title}}</span>
             <br>
             <br>
@@ -125,7 +125,8 @@
               style="font-size: 0.9rem; font-weight: bold;"
               v-if="tags.legth == 0"
             >文章标签:获取中</span>
-            <span class="pointer" style="font-size: 0.9rem; font-weight: bold;" v-else>文章标签:&nbsp;&nbsp;
+            <span class="pointer" style="font-size: 0.9rem; font-weight: bold;" v-else>
+              文章标签:&nbsp;&nbsp;
               <el-button plain size="small" v-for="(i,item) in tags" :key="item">{{i}}</el-button>
             </span>
             <br>
@@ -148,7 +149,7 @@
     <!-- 投票dialog -->
     <el-dialog :visible="voteVisible" :show-close="false" title="投票" v-loading="voteLoading">
       <div v-if="voteVisible">
-        <span class="voteTitle">{{voteInfo.title}}</span>
+        <span class="voteTitle">{{voteInfo.title}}</span><span v-if="isEnded" style="color:lightgray;font-size:1rem;">&nbsp;(投票已结束)</span>
         <br>
         <br>
         <el-checkbox-group v-model="checkedOption" :min="1" :max="voteInfo.choiceAvailableNumber">
@@ -270,6 +271,7 @@ export default {
         rows: []
       },
       isVoted: false,
+      isEnded: false,
       tags: []
     };
   },
@@ -291,7 +293,7 @@ export default {
         .get("/forward/blog/blog")
         .then(res => {
           this.testArticle = res.data._embedded;
-          console.log(this.testArticle)
+          console.log(this.testArticle);
           for (i = 0; this.testArticle.blogs[i] != null; i++) {
             var temp = this.testArticle.blogs[i];
             temp.newParam = "isOpen";
@@ -357,8 +359,8 @@ export default {
       }
     },
     checkVoteInfo() {
-      this.$message({type:"success",message:"获取投票信息中,请耐心等待"})
-    //检查是否有投票数据
+      this.$message({ type: "success", message: "获取投票信息中,请耐心等待" });
+      //检查是否有投票数据
       this.$axios
         .get("/forward/vote/vote/search/findByBlogId", {
           params: { blogId: this.dialogBlog.id }
@@ -370,6 +372,12 @@ export default {
           } else {
             //处理投票数据
             this.voteInfo = res.data._embedded.votes[0];
+            if (
+              new Date().getTime() > new Date(this.voteInfo.endDate).getTime()
+            ) {
+              this.isVoted = true;
+              this.isEnded = true;
+            }
             // 获得投票选项
             this.$axios
               .get("/forward/vote/vote/" + this.voteInfo.id + "/voteOptions")

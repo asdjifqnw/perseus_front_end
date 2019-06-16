@@ -5,11 +5,12 @@
         <el-card class="box-card" :body-style="bodyStyle0" style="width:98.3%">
           <el-col :span="24">
             <!-- 子路由 -->
-            <div v-if="this.$store.state.token==''">
+            <!-- <div v-if="this.$store.state.token==''">
               <span class="login_font">登录发现更多精彩内容</span>
               <img src="../assets/index.png" style="width:80%; padding:2.5rem 5rem 2rem 5.5rem; ">
             </div>
-            <router-view v-else :key="activeDate"/>
+            <router-view v-else :key="activeDate"/> -->
+            <router-view/>
           </el-col>
         </el-card>
       </el-col>
@@ -70,7 +71,7 @@
             </span>
           </el-card>
           <div style="display:inline-block;margin-top:0.65rem;color: #77839c">
-            &nbsp;刘博开·在线博客系统
+            &nbsp;小开开·在线博客系统
             <br>&nbsp;应用工作申请·开通博客机构号
             <br>&nbsp;侵权举报网上有害信息举报专区
             <br>&nbsp;违法和不良信息举报：010-82333333
@@ -115,7 +116,6 @@ export default {
     },
     newArtice() {
       // console.log(this.$store.state.newArticle);
-      console.log(this.$store.state.loginDialogShow);
       this.$router.push({ name: "newArticle" });
     },
     ListMyArticles() {

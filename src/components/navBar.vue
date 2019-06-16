@@ -70,7 +70,6 @@
           </el-dropdown-menu>
         </el-dropdown>
         <div style="padding: 1.5rem 0rem 0rem 1.5rem">
-          <!-- 跳转至Login页面，暂时只做测试 -->
           <span @click="loginDialogVisible = true" v-if="!isLogin" class="pointer">登录/注册</span>
           <el-dialog
             title="登录"
@@ -82,19 +81,34 @@
           >
             <el-row type="flex" class="row-bg">
               <el-col :lg="lg" v-loading="loading">
-                <el-form ref="form" :model="userInfo" label-width="80px">
+                <el-form ref="form" :model="userInfo" label-width="40%">
                   <el-form-item label="用户名： ">
                     <el-input v-model="userInfo.username"></el-input>
                   </el-form-item>
                   <el-form-item label="密码： ">
                     <el-input v-model="userInfo.password" type="password"></el-input>
                   </el-form-item>
+                  <el-form-item label="确认密码： " v-if="isRegisiter">
+                    <el-input v-model="retypePassword" type="password"></el-input>
+                  </el-form-item>
                 </el-form>
               </el-col>
             </el-row>
             <span slot="footer" class="dialog-footer">
-              <el-button type="primary" @click="login(userInfo)" :disabled="loading">确 定</el-button>
-              <el-button @click="loginDialogVisible = false ">取 消</el-button>
+              <el-button
+                type="text"
+                @click="isRegisiter = !isRegisiter"
+                :disabled="loading"
+                style="float:left"
+              >{{regisiterButton}}</el-button>
+              <el-button
+                type="primary"
+                @click="login(userInfo)"
+                :disabled="loading"
+                v-if="!isRegisiter"
+              >登录</el-button>
+              <el-button type="primary" @click="regisiter(userInfo)" :disabled="loading" v-else>注册</el-button>
+              <el-button @click="loginDialogVisible = false" type="text" style="float:right">取 消</el-button>
             </span>
           </el-dialog>
         </div>
@@ -126,12 +140,21 @@ export default {
         grant_type: "password",
         scope: "all"
       },
+      isRegisiter: false,
+      retypePassword: "",
       //lg对应的登录框偏移量
-      lg: { span: "13", offset: "5" },
+      lg: { span: "16", offset: "3" },
       userAuthId: "",
       loading: false,
-      avatarURL:"https://ui-avatars.com/api/?size=32&name="+this.$store.state.userInfo.id
+      avatarURL:
+        "https://ui-avatars.com/api/?size=32&name=" +
+        this.$store.state.userInfo.id
     };
+  },
+  computed: {
+    regisiterButton() {
+      return this.isRegisiter ? "登录" : "注册";
+    }
   },
   mounted: function() {
     window.addEventListener("scroll", this.handleScroll);
@@ -146,6 +169,39 @@ export default {
     }
   },
   methods: {
+    regisiter(userInfo) {
+      if (userInfo.username == "") {
+        this.$message({
+          type: "error",
+          message: `请输入用户名`
+        });
+        return;
+      } else if (
+        userInfo.password != this.retypePassword ||
+        userInfo.password == ""
+      ) {
+        this.$message({
+          type: "error",
+          message: `两次密码输入不一致`
+        });
+        return;
+      } else {
+        this.$axios
+          .post("/forward/authorize/user", {
+            username: userInfo.username,
+            password: userInfo.password
+          })
+          .then(res => {
+            this.$message({
+              type: "success",
+              message: `注册成功,请登录`
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          });
+      }
+    },
     search() {},
     handleClose(done) {
       this.$confirm("确认关闭？")
@@ -180,6 +236,13 @@ export default {
     },
     login(userInfo) {
       let that = this;
+      if (userInfo.username == "" || userInfo.password == "") {
+        this.$message({
+          type: "error",
+          message: `请输入用户名和密码`
+        });
+        return;
+      }
       if (userInfo == null) {
         console.log(userInfo);
         this.loginDialogVisible = false;

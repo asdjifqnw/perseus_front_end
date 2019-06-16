@@ -64,6 +64,7 @@ export default {
   methods: {
     deleteArticle(row) {
       let that = this;
+      this.$message({type:"success",message:"删除中,请稍等"})
       this.$axios
         .delete("/forward/blog/blog/" + row.id)
         .then(res => {

@@ -108,23 +108,23 @@ const router = new Router({
 
   ]
 })
-router.beforeEach((to, from, next) => {
-  if (to.meta.requireAuth) {  // 判断该路由是否需要登录权限
-    if (store.state.token) {  // 通过vuex state获取当前的token是否存在
-      next();
-    }
-    else {
-      Message.error('请先登录');
-      store.commit("notNewArticle");
-      next({
-        path: '/',
-      })
-    }
-  }
-  else {
-    next();
-  }
-})
+// router.beforeEach((to, from, next) => {
+//   if (to.meta.requireAuth) {  // 判断该路由是否需要登录权限
+//     if (store.state.token) {  // 通过vuex state获取当前的token是否存在
+//       next();
+//     }
+//     else {
+//       Message.error('请先登录');
+//       store.commit("notNewArticle");
+//       next({
+//         path: '/',
+//       })
+//     }
+//   }
+//   else {
+//     next();
+//   }
+// })
 
 export default router;
 
